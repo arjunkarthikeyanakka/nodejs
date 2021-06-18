@@ -1,21 +1,7 @@
-
-GET http://localhost:2500/getusers
-###
-
-GET http://localhost:2500/getproducts
+GET http://localhost:3000/user/getusers
 
 ###
-
-GET http://localhost:2000
-
-###
-
-POST  http://localhost:2000
+GET http://localhost:3000/product/getproducts
 
 ###
-
-PUT http://localhost:2000
-
-###
-
-DELETE http://localhost:2000
+GET http://localhost:3000/admin/getadmin
