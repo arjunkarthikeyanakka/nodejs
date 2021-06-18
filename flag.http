@@ -1,0 +1,39 @@
+GET http://localhost:3500/user
+
+
+###
+
+GET http://localhost:3500/user/2
+
+###
+
+POST http://localhost:3500/createuser
+Content-Type: application/json
+
+{
+     "id":"2",
+    "name":"Bruce Banner",
+    "hero_name":"Hulk"
+}
+
+
+###
+
+PUT http://localhost:3500/updateuser
+Content-Type: application/json
+
+{
+    "id":"2",
+    "name":"Bruce Banner",
+    "hero_name":"puny-hulk"
+}
+
+
+###
+
+
+DELETE http://localhost:3500/deleteuseeer/2
+
+
+###
+GET http://localhost:3500/fileread
