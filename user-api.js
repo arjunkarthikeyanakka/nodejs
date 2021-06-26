@@ -13,6 +13,8 @@ const databaseUrl = "mongodb+srv://gyro_zeppeli:gyro_zeppeli331@cluster0.0gmg4.m
 
 var dbObj ;
 
+const asyncHandler = require('express-async-handler')
+
 //connect to db
 mc.connect(databaseUrl,{useNewUrlParser:true,useUnifiedTopology:true},(err,client)=>{
     
@@ -30,125 +32,71 @@ mc.connect(databaseUrl,{useNewUrlParser:true,useUnifiedTopology:true},(err,clien
 
 
 //sample route
-//getting users list as a whole
-userApi.get("/getusers",(req,res,next)=>{
+//getting users list 
+userApi.get("/getusers",asyncHandler( async(req,res,next)=>{
     //read documents from user list
-    dbObj.collection("usercollection").find().toArray((err,userList)=>{
-        if(err){
-            res.send({message:err.message});
-        }
-        else{
-            if(userList.length===0) res.send({message:"user list is empty..."})
-            else res.send({message:userList});
-        }
-    })
-})
+    let usersList = await dbObj.collection("usercollection").find().toArray();
+    if(usersList.length===0) res.send({message:"user list is empty..."})
+    else res.send({message:usersList});
+}))
 
 
 //finding users with their name from the users list
-userApi.get("/getusers/:username",(req,res,next)=>{
-    uname = req.params.username;
-    dbObj.collection("usercollection").findOne({name:{$eq:uname}},(err,userprofile)=>{
-        if(err){
-            res.send({message:err.message})
-        }
-        else{
-            if(userprofile===null)
-                res.send({message:"user with that name does not exist..."})
-            else
-                res.send({message:userprofile})
-        }
-    })
+userApi.get("/getusers/:username", asyncHandler(async(req,res,next)=>{
+    let uname = req.params.username;
+    let user_details = await dbObj.collection("usercollection").findOne({name:{$eq:uname}});
+    if(user_details===null){
+        res.send({message:"user with that name does not exist..."})
+    }
+    else {
+        res.send({message:user_details});
+    }
     
-})
+}))
 
 
 
 //post request handler
-userApi.post("/createusers",(req,res,next)=>{
-    newuser=req.body;
-    dbObj.collection("usercollection").findOne({name:{$eq:newuser.name}},(err,userObj)=>{
-        if(err){
-            res.send({message:`error in creating a new user is : ${err.message}`});
-        }
-        else if(userObj!==null){
-            res.send({message:"the user with that name already exists , duplicates are not allowed..."});
-        }
-        else{
-            dbObj.collection("usercollection").insertOne(newuser,(err,userprofile)=>{
-                if(err){
-                    res.send({message:`error in creating new user is : ${err.message}`})
-                }
-                else{
-                    res.send({message:"new user is added to the userlist..."})
-                }
-            })
-        }
-    })
-})
+userApi.post("/createusers",asyncHandler(async(req,res,next)=>{
+    let newuser=req.body;
+    let user_details = await dbObj.collection("usercollection").findOne({name:{$eq:newuser.name}});
+    if(user_details!==null){
+        res.send({message:"user with that name already exists add a new user..."})
+    }
+    else{
+        await dbObj.collection("usercollection").insertOne(newuser);
+        res.send({message:"new user is added to the userlist..."})
+    }
+}))
 
 
 //updating a user from the users list
-userApi.put("/updateusers",(req,res,next)=>{
-    updatedUser = req.body;
-    dbObj.collection("usercollection").findOne({name:{$eq:updatedUser.name}},(err,userObj)=>{
-        if(err){
-            res.send({message:`error in updating a user is : ${err.message}`});
-        }
-        else{
-            if(userObj===null){
-                res.send({message:"user with that id does not exist..."});
-            }
-            else{
-                dbObj.collection("usercollection").updateOne({name:userObj.name},{
-                    $set: {...updatedUser}//the three dots will assign the values of the new object to the old existing copy of the same user
-                    /*
-                        other method to set values of a user:
-                        $set : {
-                            salary : userObj.salary,
-                            city : userObj.city,
-                            role : userObj.role 
-                        }
-                    */
-                },(err,userObj)=>{
-                    if(err){
-                        res.send({message:`error in updating user is : ${err.message}`});
-                    }
-                    else{
-                        res.send({message:"the user is updated..."});
-                    }
-                })
-            }
-        }
-    })
-})
+userApi.put("/updateusers",asyncHandler(async(req,res,next)=>{
+    let updatedUser = req.body;
+    let user_details = await dbObj.collection("usercollection").findOne({name:{$eq:updatedUser.name}});
+    if(user_details===null){
+        res.send({message:"user with that name does not exist..."})
+    }
+    else{
+        await dbObj.collection("usercollection").updateOne({name:updatedUser.name},{$set:{...updatedUser}});
+        res.send({message:"the user is updated..."});
+    }
+}))
 
 
 //deleting a user
-userApi.delete("/removeusers/:username",(req,res,next)=>{
-    removedUser = req.body;
-    username = req.params.username;
-    dbObj.collection("usercollection").findOne({name:{$eq:username}},(err,userObj)=>{
-        if(err){
-            res.send({message:`error in deleting the user is : ${err.message}`})
-        }
-        else{
-            if(userObj===null){
-                res.send({message:"user with that name does not exist..."});
-            }
-            else{
-                dbObj.collection("usercollection").deleteOne({name:{$eq:username}},(err,deleted)=>{
-                    if(err){
-                        res.send({message:`error in deleting the user is : ${err.message}`})
-                    }
-                    else{
-                        res.send({message:"user is deleted successfully..."})
-                    }
-                })
-            }
-        }
-    })
-})
+userApi.delete("/removeusers/:username",asyncHandler(async(req,res,next)=>{
+    let username = req.params.username;
+    let user_details = await dbObj.collection("usercollection").findOne({name:{$eq:username}});
+    if(user_details===null){
+        res.send({message:"user with that name does not exist..."})
+    }
+    else{
+        await dbObj.collection("usercollection").deleteOne({name:{$eq:username}});
+        res.send({message:"user is deleted successfully..."});
+    }
+    
+}))
 
 
 //export
