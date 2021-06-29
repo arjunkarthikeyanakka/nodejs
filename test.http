@@ -1,21 +1,46 @@
-
-GET http://localhost:2500/getusers
-###
-
-GET http://localhost:2500/getproducts
+GET http://localhost:3000/user/getusers
 
 ###
+GET http://localhost:3000/user/getusers/jim
 
-GET http://localhost:2000
-
-###
-
-POST  http://localhost:2000
 
 ###
+POST http://localhost:3000/user/createusers
+Content-Type: application/json
 
-PUT http://localhost:2000
+{
+    "username":"jim",
+    "password":"halpert",
+    "phone":9918284849,
+    "recoveryEmail":"jim@sales.com"
+}
+
 
 ###
+PUT http://localhost:3000/user/updateusers
+Content-Type: application/json
 
-DELETE http://localhost:2000
+{
+    "username":"jim",
+    "phone":1234567890
+}
+
+
+###
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "username":"jim",
+    "password":"halpert"
+}
+
+###
+DELETE http://localhost:3000/user/removeusers/jim
+
+###
+DELETE http://localhost:3000/user/deleteallusers
+
+
+###
+POST http://localhost:3000/user/hash/jim
